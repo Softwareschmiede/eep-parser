@@ -1,0 +1,23 @@
+{
+  "name": "eep-parser",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Softwareschmiede/eep-parser.git"
+  },
+  "keywords": [
+    "EnOcean",
+    "EEP"
+  ],
+  "author": "David Spanier",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Softwareschmiede/eep-parser/issues"
+  },
+  "homepage": "https://github.com/Softwareschmiede/eep-parser#readme"
+}
