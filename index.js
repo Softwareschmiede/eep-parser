@@ -51,37 +51,42 @@ class EEPParser {
 
     parse(buf) {
         const packet = new ESP3Parser(buf);
-        //console.log(packet);
+
+        console.log(packet);
 
         var data = null;
 
-        switch (packet.data.rorg) {
-            case 'f6': // RPS
-                data = RPS(packet);
-                break;
-            case 'd5': // 1BS
-                data = OneBS(packet);
-                break;
-            case 'a5': // 4BS
-                data = FourBS(packet);
-                break;
-            default:
-                break;
-        }
+    switch (packet.data.rorg) {
+        case 'f6': // RPS
+            data = RPS(packet);
+            break;
+        case 'd5': // 1BS
+            data = OneBS(packet);
+            break;
+        case 'a5': // 4BS
+            data = FourBS(packet);
+            break;
+        default:
+            break;
+    }
 
-        const eepPacket = {
-            learnMode: data.learnMode,
-            eep: data.eep,
-            senderId: packet.data.senderId,
-            status: packet.data.status,
-            data: data.userData,
-            subTelNum: packet.optionalData.subTelNum,
-            destinationId: packet.optionalData.destinationId,
-            dBm: packet.optionalData.dBm,
-            securityLevel: packet.optionalData.securityLevel
-        }
+        if (data !== null) {
+            const eepPacket = {
+                //learnMode: data.learnMode,
+                eep: data.eep,
+                senderId: packet.data.senderId,
+                status: packet.data.status,
+                data: data.userData,
+                subTelNum: packet.optionalData.subTelNum,
+                destinationId: packet.optionalData.destinationId,
+                dBm: packet.optionalData.dBm,
+                securityLevel: packet.optionalData.securityLevel
+            };
 
-        return eepPacket;
+            return eepPacket;
+        } else {
+            return null;
+        }
     }
 
 }
