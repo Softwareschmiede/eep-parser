@@ -18,7 +18,7 @@ class Helper {
     }
 
     static concatEEP(eep) {
-        return eep.rorg + '-' + eep.func + '-' + eep.type;
+        return (eep.rorg + '-' + eep.func + '-' + eep.type).toUpperCase();
     }
 }
 

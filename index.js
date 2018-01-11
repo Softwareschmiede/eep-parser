@@ -12,6 +12,10 @@ var _devices = null; // Object for faster access
 
 class EEPParser {
     constructor(options) {
+        if (options === undefined || options === null) {
+            options = {};
+        }
+
         _devices = (options.knownDevices && typeof options.knownDevices === Array && options.knownDevices.length > 0) ? this.addDevices(options.knownDevices) : {};
     }
 
@@ -31,6 +35,9 @@ class EEPParser {
     }
 
     addDevice(senderId, eep) {
+        senderId = senderId.toUpperCase();
+        eep = eep.toUpperCase();
+
         if (_devices[senderId] === undefined) {
             _devices[senderId] = eep;
         }
@@ -38,7 +45,9 @@ class EEPParser {
 
     addDevices(devices) {
         for (let i = 0; i < devices.length; i++) {
-            this.addDevice(devices.senderId, devices.eep);
+            const device = devices[i];
+
+            this.addDevice(device.senderId, device.eep);
         }
     }
 
@@ -49,7 +58,7 @@ class EEPParser {
     parse(buf) {
         try {
             const packet = new ESPParser(buf);
-            console.log(packet);
+            //console.log(packet);
 
             var data = null;
 
@@ -147,7 +156,7 @@ function OneBS(data) {
 function FourBS(data) {
     const learnMode = data.rawUserData.readUInt8(3) << 28 >>> 31;
 
-    if (learnMode === 1) { // It's a learn packet, so parse it
+    if (learnMode === 0) { // It's a learn packet, so parse it
         const eep = Helper.splitEEP(_devices[data.senderId]);
 
         var userData = null;
