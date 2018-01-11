@@ -3,16 +3,13 @@
 /*
  *  Imports
  */
-const ESP3Parser = require('./ESP3Parser');
-const CRC8 = require('./CRC8');
+const ESPParser = require('esp-parser');
 const Helper = require('./helper');
 
 const _eeps = require('./eep/');
 const _devices = {}; // Object for faster access
 
-/*
- *  Class
- */
+
 class EEPParser {
     constructor(options) {
 
@@ -50,7 +47,7 @@ class EEPParser {
     }
 
     parse(buf) {
-        const packet = new ESP3Parser(buf);
+        const packet = new ESPParser(buf);
 
         console.log(packet);
 

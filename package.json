@@ -19,5 +19,8 @@
   "bugs": {
     "url": "https://github.com/Softwareschmiede/eep-parser/issues"
   },
-  "homepage": "https://github.com/Softwareschmiede/eep-parser#readme"
+  "homepage": "https://github.com/Softwareschmiede/eep-parser#readme",
+  "dependencies": {
+    "esp-parser": "0.0.1"
+  }
 }
