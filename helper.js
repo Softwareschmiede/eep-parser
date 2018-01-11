@@ -16,6 +16,10 @@ class Helper {
 
         return eep;
     }
+
+    static concatEEP(eep) {
+        return eep.rorg + '-' + eep.func + '-' + eep.type;
+    }
 }
 
 module.exports = Helper;
