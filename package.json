@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/Softwareschmiede/eep-parser#readme",
   "dependencies": {
-    "esp-parser": "0.0.2"
+    "erp-parser": "0.0.2",
+    "esp-parser": "0.0.3"
   }
 }

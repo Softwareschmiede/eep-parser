@@ -63,22 +63,33 @@ class EEPParser {
             var data = null;
 
             if (_devices.hasOwnProperty(packet.data.senderId)) {
-                const userData = _eeps[_devices[packet.data.senderId]](packet.data.rawUserData);
+                const eep = _devices[packet.data.senderId];
+
+                var userData = null;
+
+                if (eep.indexOf('A5-02') !== -1 || eep.indexOf('A5-04') !== -1) {
+                    const specialEEP = eep.split('-')[0] + '-' + eep.split('-')[1];
+                    const type = eep.split('-')[2];
+
+                    userData = _eeps[specialEEP](packet.data.rawUserData, type);
+                } else {
+                    userData = _eeps[eep](packet.data.rawUserData);
+                }
 
                 data = {
-                    eep: Helper.concatEEP(_devices[packet.data.senderId]),
+                    eep: eep,
                     learnMode: false,
                     userData: userData
                 };
             } else {
                 switch (packet.data.rorg) {
-                    case 'f6': // RPS
+                    case 'F6': // RPS
                         data = RPS(packet.data);
                         break;
-                    case 'd5': // 1BS
+                    case 'D5': // 1BS
                         data = OneBS(packet.data);
                         break;
-                    case 'a5': // 4BS
+                    case 'A5': // 4BS
                         data = FourBS(packet.data);
                         break;
                     default:
@@ -157,20 +168,21 @@ function FourBS(data) {
     const learnMode = data.rawUserData.readUInt8(3) << 28 >>> 31;
 
     if (learnMode === 0) { // It's a learn packet, so parse it
-        const eep = Helper.splitEEP(_devices[data.senderId]);
+        const func = ('0' + (data.rawUserData.readUInt8(0) >>> 2).toString(16)).slice(-2);
+        const type = ('0' + (data.rawUserData.readUInt16BE(0) << 26 >>> 29).toString(16)).slice(-2);
 
         var userData = null;
 
-        if (eep.func === '02' || eep.func === '04') { // Temperature devices with only few differents
-            userData = _eeps[eep.rorg + '-' + eep.func](data.rawUserData, eep.type);
+        if (func === '02' || func === '04') { // Temperature devices with only few differents
+            userData = _eeps[data.rorg + '-' + func](data.rawUserData, type);
         } else {
-            userData = _eeps[eep.rorg + '-' + eep.func + '-' + eep.type](data.rawUserData);
+            userData = _eeps[data.rorg + '-' + func + '-' + type](data.rawUserData);
         }
 
         if (userData !== null) {
             return {
-                eep: eep,
-                learnMode: false,
+                eep: data.rorg + '-' + func + '-' + type,
+                learnMode: true,
                 userData: userData
             };
         } else {
@@ -180,6 +192,12 @@ function FourBS(data) {
         // TODO: Try to parse anyway
         return null;
     }
+}
+
+function VLD(data) {
+    const reqCode = data.readUInt8(0) >>> 3;
+    const manufacturerId = data.readUInt16BE(0) << 5 >>> 5;
+
 }
 
 module.exports = EEPParser;
