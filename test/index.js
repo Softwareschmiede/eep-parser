@@ -1,19 +1,15 @@
 const EEPParser = require('../index');
 
 describe("EEPParser Test", function() {
-    const buf = Buffer.from('55000A0701EBA5000088080181383F0003FFFFFFFF4F0018', 'hex');
+    const buf = Buffer.from('550009070156d20460e405037d9a0003ffffffff3c003b', 'hex');
 
     const parser = new EEPParser();
-    parser.addDevices([
-        {
-            senderId: '0181BB32',
-            eep: 'A5-10-03'
-        },
-        {
-            senderId: '0500FF9D',
-            eep: 'A5-20-01'
-        }
-    ]);
+    // parser.addDevices([
+    //     {
+    //         senderId: '0181383F',
+    //         eep: 'A5-02-05'
+    //     }
+    // ]);
 
     //console.log(parser.getDevices());
     const userData = parser.parse(buf);

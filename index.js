@@ -4,9 +4,10 @@
  *  Imports
  */
 const ESPParser = require('esp-parser');
-const Helper = require('./helper');
+// const Helper = require('./helper');
 
-const _eeps = require('./eep/');
+// const _eeps = require('./eep/');
+const Telegram = require('./telegram');
 var _devices = null; // Object for faster access
 
 
@@ -58,52 +59,25 @@ class EEPParser {
     parse(buf) {
         try {
             const packet = new ESPParser(buf);
-            //console.log(packet);
 
-            var data = null;
+            console.log(packet);
+
+            const telegram = new Telegram(packet['data']['rorg'], packet['data']['rawUserData']);
+            let result = null;
 
             if (_devices.hasOwnProperty(packet.data.senderId)) {
-                const eep = _devices[packet.data.senderId];
-
-                var userData = null;
-
-                if (eep.indexOf('A5-02') !== -1 || eep.indexOf('A5-04') !== -1) {
-                    const specialEEP = eep.split('-')[0] + '-' + eep.split('-')[1];
-                    const type = eep.split('-')[2];
-
-                    userData = _eeps[specialEEP](packet.data.rawUserData, type);
-                } else {
-                    userData = _eeps[eep](packet.data.rawUserData);
-                }
-
-                data = {
-                    eep: eep,
-                    learnMode: false,
-                    userData: userData
-                };
+                result = telegram.parse(_devices[packet.data.senderId]);
             } else {
-                switch (packet.data.rorg) {
-                    case 'F6': // RPS
-                        data = RPS(packet.data);
-                        break;
-                    case 'D5': // 1BS
-                        data = OneBS(packet.data);
-                        break;
-                    case 'A5': // 4BS
-                        data = FourBS(packet.data);
-                        break;
-                    default:
-                        break;
-                }
+                result = telegram.parse();
             }
 
-            if (data !== null) {
+            if (result) {
                 const eepPacket = {
-                    learnMode: data.learnMode,
-                    eep: data.eep,
+                    learnMode: result.learnMode,
+                    eep: result.eep,
                     senderId: packet.data.senderId,
                     status: packet.data.status,
-                    data: data.userData,
+                    data: result.userData,
                     subTelNum: packet.optionalData.subTelNum,
                     destinationId: packet.optionalData.destinationId,
                     dBm: packet.optionalData.dBm,
@@ -118,86 +92,6 @@ class EEPParser {
             console.log(err);
         }
     }
-}
-
-/**
- * 
- * @param {*} packet 
- * @description RPS telegrams don't have a learn bit, so we have to "try" to parse the rawUserData
- */
-function RPS(data) {
-    // const t21 = Hex2Int(packet.data.status) >>> 5;
-    // const nu = Hex2Int(packet.data.status) << 27 >>> 31;
-
-    const rpsEEPKeys = Object.keys(_eeps).filter((eep) => { return eep.indexOf('f6') !== -1; }); // Filter RPS functions
-
-    for (let i = 0; i < rpsEEPKeys.length; i++) { // Iterate over every key and try to parse the rawUserData
-        const userData = _eeps[rpsEEPKeys[i]](data.rawUserData);
-
-        if (userData !== null) {
-            return {
-                eep: rpsEEPKeys[i],
-                learnMode: true, // RPS devices don't have a learn mode, so if it's unknown it's a learn telegram with user data
-                userData: userData
-            }
-        }
-    }
-
-    return null;
-}
-
-/**
- * 
- */
-function OneBS(data) {
-    const learnMode = data.rawUserData.readUInt8() << 28 >>> 31; // Offset = 4, size = 1
-
-    if (learnMode === 0) { // it's a learn packet
-        return {
-            eep: data.rorg + '-' + '00' + '-' + '01',
-            learnMode: true,
-            userData: null
-        };
-    } else { // No learn packet and device is not known, maybe it's possible to parse the user data anyway
-        // TODO: try to parse anyway
-        return null;
-    }
-}
-
-function FourBS(data) {
-    const learnMode = data.rawUserData.readUInt8(3) << 28 >>> 31;
-
-    if (learnMode === 0) { // It's a learn packet, so parse it
-        const func = ('0' + (data.rawUserData.readUInt8(0) >>> 2).toString(16)).slice(-2);
-        const type = ('0' + (data.rawUserData.readUInt16BE(0) << 26 >>> 29).toString(16)).slice(-2);
-
-        var userData = null;
-
-        if (func === '02' || func === '04') { // Temperature devices with only few differents
-            userData = _eeps[data.rorg + '-' + func](data.rawUserData, type);
-        } else {
-            userData = _eeps[data.rorg + '-' + func + '-' + type](data.rawUserData);
-        }
-
-        if (userData !== null) {
-            return {
-                eep: data.rorg + '-' + func + '-' + type,
-                learnMode: true,
-                userData: userData
-            };
-        } else {
-            return null;
-        }
-    } else { // Unknown device and no learn packet
-        // TODO: Try to parse anyway
-        return null;
-    }
-}
-
-function VLD(data) {
-    const reqCode = data.readUInt8(0) >>> 3;
-    const manufacturerId = data.readUInt16BE(0) << 5 >>> 5;
-
 }
 
 module.exports = EEPParser;

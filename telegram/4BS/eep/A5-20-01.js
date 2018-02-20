@@ -1,4 +1,4 @@
-const Helper = require('../helper');
+const Helper = require('../../helper');
 
 const min = 0;
 const max = 40;
@@ -17,7 +17,6 @@ module.exports = function(rawUserData) {
     const detectionWindowOpen = rawUserData.readUInt8(1) << 30 >>> 31;
     const actuatorObstructed = rawUserData.readUInt8(1) << 31 >>> 31;
     const temperature = rawUserData.readUInt8(2);
-    const learnMode = rawUserData.readUInt8(3) << 28 >>> 31;
 
     return {
         type: 'hvac',
@@ -33,7 +32,6 @@ module.exports = function(rawUserData) {
         cover: booleanEnum[contactCoverOpen],
         sensorFailure: booleanEnum[failureTemperatureSensor],
         window: booleanEnum[detectionWindowOpen],
-        actuatorState: booleanEnum[actuatorObstructed],
-        learnMode: batteryEnum[learnMode]
+        actuatorState: booleanEnum[actuatorObstructed]
     }
 };

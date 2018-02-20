@@ -1,7 +1,7 @@
-module.exports = function(packet) {
+module.exports = function(rawUserData) {
 
     const state = ['open', 'closed'];
-    const stateBit = packet.data.rawUserData.readUInt8() << 31 >>> 31; // Offset = 7, size = 1
+    const stateBit = rawUserData.readUInt8() << 31 >>> 31; // Offset = 7, size = 1
 
     return {
         type: 'contact',
