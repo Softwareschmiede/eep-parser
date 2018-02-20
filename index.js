@@ -63,6 +63,7 @@ class EEPParser {
             console.log(packet);
 
             const telegram = new Telegram(packet['data']['rorg'], packet['data']['rawUserData']);
+
             let result = null;
 
             if (_devices.hasOwnProperty(packet.data.senderId)) {

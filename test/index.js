@@ -1,21 +1,21 @@
 const EEPParser = require('../index');
 
-describe("EEPParser Test", function() {
-    const buf = Buffer.from('550009070156d20460e405037d9a0003ffffffff3c003b', 'hex');
 
-    const parser = new EEPParser();
-    // parser.addDevices([
-    //     {
-    //         senderId: '0181383F',
-    //         eep: 'A5-02-05'
-    //     }
-    // ]);
+const buf = Buffer.from('55000C070196D207600000000005037D9A0003FFFFFFFF4300FF', 'hex');
 
-    //console.log(parser.getDevices());
-    const userData = parser.parse(buf);
+const parser = new EEPParser();
+parser.addDevices([
+    {
+        senderId: '05037D9A',
+        eep: 'D2-01-00'
+    }
+]);
 
-    console.log(userData);
-});
+//console.log(parser.getDevices());
+const userData = parser.parse(buf);
+
+console.log(userData);
+
 
 // tempSensor.05
 // 55000A0701EBA5000088080181383F0003FFFFFFFF4F0018
@@ -31,3 +31,5 @@ describe("EEPParser Test", function() {
 // Learn
 // 55000a0701eba5800849800500ff9d0003ffffffff44007a
 
+// D2
+// 55000C070196D207600000000005037D9A0003FFFFFFFF4300FF

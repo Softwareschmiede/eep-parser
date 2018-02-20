@@ -1,6 +1,7 @@
 const RPS = require('./RPS');
 const OneBS = require('./1BS');
 const FourBS = require('./4BS');
+const VLD = require('./VLD');
 
 let _telegram = null;
 
@@ -17,6 +18,8 @@ class Telegram {
                 _telegram = new FourBS(rawUserData);
                 break;
             case 'D2':
+                _telegram = new VLD(rawUserData);
+                break;
             default:
                 _telegram = null;
                 break;
