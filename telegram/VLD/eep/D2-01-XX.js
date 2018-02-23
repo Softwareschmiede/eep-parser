@@ -1,25 +1,32 @@
 const _powerFailure = ['Not supported, disabled', 'Enabled'];
 const _powerFailureDetection = ['Not detected, not supported, disabled', 'Detected'];
-const _overCurrentSwitchOff = ['Ready, not supported',  'Executed'];
+const _overCurrentSwitchOff = ['Ready, not supported', 'Executed'];
 const _errorLevel = ['OK', 'Waring', 'Failure', 'Not supported'];
 const _unit = ['Energy [Ws]', 'Energy [Wh]', 'Energy [KWh]', 'Power [W]', 'Power [KW]', '', '', ''];
 
-module.exports = function (rawUserData) {
-    const commandId = rawUserData.readUInt8() << 28 >> 28;
+class D201XX {
+    static decode(rawUserData) {
+        const commandId = rawUserData.readUInt8() << 28 >> 28;
+        let response = null;
 
-    let response = null;
+        switch (commandId) {
+            case 4:
+                response = cmd4(rawUserData);
+                break;
+            case 7:
+                response = cmd7(rawUserData);
+                break;
+        }
 
-    switch (commandId) {
-        case 4:
-            response = cmd4(rawUserData);
-            break;
-        case 7:
-            response = cmd7(rawUserData);
-            break;
+        return response;
     }
 
-    return response;
-};
+    static encode() {
+
+    }
+}
+
+module.exports = D201XX;
 
 function cmd4(rawUserData) {
     const powerFailure = rawUserData.readUInt8() << 24 >>> 31;

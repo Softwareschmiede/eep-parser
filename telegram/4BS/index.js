@@ -5,14 +5,10 @@ _eepList['A5-10-03'] = require('./eep/A5-10-03');
 _eepList['A5-20-01'] = require('./eep/A5-20-01');
 _eepList['A5-30-03'] = require('./eep/A5-30-03');
 
-let _rawUserData = null;
-
 class FourBS {
-    constructor(rawUserData) {
-        _rawUserData = rawUserData;
-    }
+    constructor() {}
 
-    parse(eep) {
+    decode(rawUserData, eep = null) {
         if (eep) {
             const splittedEEP = splitEEP(eep);
 
@@ -21,9 +17,9 @@ class FourBS {
             // Special call variant, because there are only a few differences while parsing
             if (splittedEEP['func'] === '02' || splittedEEP['func'] === '04') {
                 // Call parser with type
-                userData = _eepList[splittedEEP['rorg'] + '-' + splittedEEP['func']](_rawUserData, splittedEEP['type']);
+                userData = _eepList[splittedEEP['rorg'] + '-' + splittedEEP['func']].decode(rawUserData, splittedEEP['type']);
             } else {
-                userData = _eepList[eep](this.rawUserData);
+                userData = _eepList[eep].decode(rawUserData);
             }
 
             return {
@@ -34,20 +30,20 @@ class FourBS {
         } else {
             const learnMode = [true, false];
 
-            const learnBit = _rawUserData.readUInt8(3) << 28 >>> 31;
+            const learnBit = rawUserData.readUInt8(3) << 28 >>> 31;
 
             if (learnMode[learnBit]) { // It's a learn packet, so parse it
-                const func = ('0' + (_rawUserData.readUInt8(0) >>> 2).toString(16)).slice(-2).toUpperCase();
-                const type = ('0' + (_rawUserData.readUInt16BE(0) << 26 >>> 29).toString(16)).slice(-2).toUpperCase();
+                const func = ('0' + (rawUserData.readUInt8(0) >>> 2).toString(16)).slice(-2).toUpperCase();
+                const type = ('0' + (rawUserData.readUInt16BE(0) << 26 >>> 29).toString(16)).slice(-2).toUpperCase();
 
                 const eep = 'A5' + '-' + func + '-' + type;
 
                 let userData = null;
 
                 if (func === '02' || func === '04') {
-                    userData = _eepList['A5' + '-' + func](_rawUserData, type);
+                    userData = _eepList['A5' + '-' + func].decode(rawUserData, type);
                 } else {
-                    userData = _eepList[eep](_rawUserData, type);
+                    userData = _eepList[eep].decode(rawUserData, type);
                 }
 
                 return {
@@ -80,6 +76,10 @@ class FourBS {
                 return null;
             }
         }
+    }
+
+    encode(cmd, eep) {
+        
     }
 }
 

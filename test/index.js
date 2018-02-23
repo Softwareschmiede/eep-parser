@@ -1,20 +1,21 @@
 const EEPParser = require('../index');
 
 
-const buf = Buffer.from('55000C070196D207600000000005037D9A0003FFFFFFFF4300FF', 'hex');
+const buf = Buffer.from('55000a0701eba5800849800500ff9d0003ffffffff44007a', 'hex');
 
 const parser = new EEPParser();
 parser.addDevices([
     {
-        senderId: '05037D9A',
-        eep: 'D2-01-00'
+        senderId: '0181383F',
+        eep: 'A5-02-05'
     }
 ]);
 
 //console.log(parser.getDevices());
-const userData = parser.parse(buf);
+const userData = parser.decode(buf);
 
 console.log(userData);
+
 
 
 // tempSensor.05

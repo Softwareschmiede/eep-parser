@@ -2,33 +2,16 @@ const _eepList = [];
 
 _eepList['D2-01'] = require('./eep/D2-01-XX');
 
-let _rawUserData = null;
-
 class VLD {
-    constructor(rawUserData) {
-        const query = ute(rawUserData);
+    constructor() {}
 
-        if (query && (query['request'] === 0 || query['request'] === 2) && query['cmd'] === 0) {
-            // It's a teach in query
-            const eep = query['rorg'] + '-' + query['func'] + '-' + query['type'];
-
-            return {
-                eep: eep,
-                learnMode: true,
-                userData: query
-            }
-        } else {
-            _rawUserData = rawUserData;
-        }
-    }
-
-    parse(eep) {
+    decode(rawUserData, eep = null) {
         if (eep) {
             // TODO
             const splittedEEP = splitEEP(eep);
 
             if (splittedEEP['func'] === '01') {
-                const userData = _eepList[splittedEEP['rorg'] + '-' + splittedEEP['func']](_rawUserData);
+                const userData = _eepList[splittedEEP['rorg'] + '-' + splittedEEP['func']](rawUserData);
 
                 return {
                     eep: eep,
@@ -39,7 +22,21 @@ class VLD {
                 // TODO
             }
         } else {
-            // TODO
+            // check if ute teach in
+            const query = ute(rawUserData);
+
+            if (query && (query['request'] === 0 || query['request'] === 2) && query['cmd'] === 0) {
+                // It's a teach in query
+                const eep = query['rorg'] + '-' + query['func'] + '-' + query['type'];
+
+                return {
+                    eep: eep,
+                    learnMode: true,
+                    userData: query
+                }
+            } else {
+                // No teach in query
+            }
         }
     }
 }

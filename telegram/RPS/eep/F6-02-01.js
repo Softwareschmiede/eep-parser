@@ -1,40 +1,29 @@
-module.exports = function(rawUserData) {
-    const btn = rawUserData.toString('hex');
+const _button = {
+    '00': 'Released',
+    '10': 'AI',
+    '30': 'A0',
+    '50': 'BI',
+    '70': 'B0'
+}
 
-    if (btn === '00') {
+class F60201 {
+    constructor() {}
+
+    static decode(rawUserData) {
+        const button = rawUserData.toString('hex');
+
         return {
             type: 'switch',
-            value: 'released'
+            button: _button[button]
         }
     }
 
-    if (btn === '10') {
-        return {
-            type: 'switch',
-            value: 'AI'
-        }
-    }
+    static encode(cmd) {
+        const button = Object.keys(_button).find(key => { return _button[key] === cmd['value']; }) // magic
+        const rawUserData = Buffer.from(button.toString(), 'hex');
 
-    if (btn === '30') {
-        return {
-            type: 'switch',
-            value: 'A0'
-        }
+        return rawUserData;
     }
+}
 
-    if (btn === '50') {
-        return {
-            type: 'switch',
-            value: 'BI'
-        }
-    }
-
-    if (btn === '70') {
-        return {
-            type: 'switch',
-            value: 'B0'
-        }
-    }
-
-    return null;
-};
+module.exports = F60201;

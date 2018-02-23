@@ -56,20 +56,20 @@ class EEPParser {
         delete _devices[senderId];
     }
 
-    parse(buf) {
+    decode(buf) {
         try {
             const packet = new ESPParser(buf);
 
             console.log(packet);
 
-            const telegram = new Telegram(packet['data']['rorg'], packet['data']['rawUserData']);
+            const telegram = new Telegram(packet['data']['rorg']);
 
             let result = null;
 
             if (_devices.hasOwnProperty(packet.data.senderId)) {
-                result = telegram.parse(_devices[packet.data.senderId]);
+                result = telegram.decode(packet['data']['rawUserData'], _devices[packet.data.senderId]);
             } else {
-                result = telegram.parse();
+                result = telegram.decode(packet['data']['rawUserData']);
             }
 
             if (result) {
@@ -91,6 +91,18 @@ class EEPParser {
             }
         } catch (err) {
             console.log(err);
+        }
+    }
+
+    encode(cmd) {
+        if (cmd) {
+            const eep = _devices[cmd.senderId];
+            const rorg = eep.split('-')[0];
+
+            const telegram = new Telegram(rorg)
+            const cmdEncoded = telegram.encode(cmd);
+        } else {
+            throw new TypeError('No command');
         }
     }
 }

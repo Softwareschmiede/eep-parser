@@ -6,19 +6,19 @@ const VLD = require('./VLD');
 let _telegram = null;
 
 class Telegram {
-    constructor(rorg, rawUserData) {
+    constructor(rorg) {
         switch (rorg) {
             case 'F6':
-                _telegram = new RPS(rawUserData);
+                _telegram = new RPS();
                 break;
             case 'D5':
-                _telegram = new OneBS(rawUserData);
+                _telegram = new OneBS();
                 break;
             case 'A5':
-                _telegram = new FourBS(rawUserData);
+                _telegram = new FourBS();
                 break;
             case 'D2':
-                _telegram = new VLD(rawUserData);
+                _telegram = new VLD();
                 break;
             default:
                 _telegram = null;
@@ -26,13 +26,19 @@ class Telegram {
         }
     }
 
-    parse(eep) {
+    decode(rawUserData, eep = null) {
         if (eep) {
-            return _telegram.parse(eep);
+            return _telegram.decode(rawUserData, eep);
         } else {
-            const result = _telegram.parse();
+            const result = _telegram.decode(rawUserData);
             return result;
         }
+    }
+
+    encode(cmd, eep) {
+        const rawData = _telegram.encode(cmd, eep);
+
+        return rawData;
     }
 }
 
